@@ -7,6 +7,8 @@ const camelize = function (str) {
 };
 
 const normalize_options = (opts) => {
+  // Clone user options, the original object is left untouched
+  opts = { ...opts };
   // Convert Stream Readable options if underscored
   if (opts.object_mode) {
     opts.objectMode = opts.object_mode;

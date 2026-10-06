@@ -33,9 +33,12 @@ const normalize_columns = function (columns) {
           ];
         }
         if (column.header === undefined) {
-          column.header = column.key;
+          // Clone the column definition, the original object
+          // must be left untouched
+          newcolumns.push({ ...column, header: column.key });
+        } else {
+          newcolumns.push(column);
         }
-        newcolumns.push(column);
       } else {
         return [
           Error("Invalid column definition: expect a string or an object"),

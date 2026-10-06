@@ -9,16 +9,17 @@ import stream from "stream";
 import util from "util";
 
 const Transformer = function (options = {}, handler) {
-  this.options = options;
-  if (options.consume === undefined || options.consume === null) {
+  // Clone user options, the original object is left untouched
+  this.options = { ...options };
+  if (this.options.consume === undefined || this.options.consume === null) {
     this.options.consume = false;
   }
   this.options.objectMode = true;
-  if (options.parallel === undefined || options.parallel === null) {
+  if (this.options.parallel === undefined || this.options.parallel === null) {
     this.options.parallel = 100;
   }
-  if (options.params === undefined || options.params === null) {
-    options.params = null;
+  if (this.options.params === undefined || this.options.params === null) {
+    this.options.params = null;
   }
   this.handler = handler;
   stream.Transform.call(this, this.options);

@@ -112,12 +112,13 @@ const stringifier = function (options, state, info) {
       // Record is an array
       if (Array.isArray(chunk)) {
         // We are getting an array but the user has specified output columns. In
-        // this case, we respect the columns indexes
-        if (columns) {
-          chunk.splice(columns.length);
-        }
+        // this case, we respect the columns indexes. The user record is
+        // treated as read-only and must not be truncated.
+        const length = columns
+          ? Math.min(chunk.length, columns.length)
+          : chunk.length;
         // Cast record elements
-        for (let i = 0; i < chunk.length; i++) {
+        for (let i = 0; i < length; i++) {
           const field = chunk[i];
           const [err, value] = this.__cast(field, {
             index: i,
@@ -152,9 +153,9 @@ const stringifier = function (options, state, info) {
           options = this.options;
         } else if (is_object(value)) {
           // Value is considerered as a mix of a value and options
-          options = value;
-          value = options.value;
-          delete options.value;
+          // Extract the value without altering the object returned by cast
+          const { value: cast_value, ...cast_options } = value;
+          value = cast_value;
           if (
             typeof value !== "string" &&
             value !== undefined &&
@@ -168,7 +169,7 @@ const stringifier = function (options, state, info) {
               ];
           }
           // Merge global options with the ones returned by cast
-          options = { ...this.options, ...options };
+          options = { ...this.options, ...cast_options };
           [err, options] = normalize_options(options);
           if (err !== undefined) {
             return [err];

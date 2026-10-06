@@ -200,7 +200,9 @@ const normalize_options = function (opts) {
   if (options.cast === undefined || options.cast === null) {
     options.cast = {};
   } else {
-    // todo
+    // Clone the user object, default cast functions are registered below
+    // and the original object must be left untouched
+    options.cast = { ...options.cast };
   }
   // Normalize option cast.bigint
   if (options.cast.bigint === undefined || options.cast.bigint === null) {
