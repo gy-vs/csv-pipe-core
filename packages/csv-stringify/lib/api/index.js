@@ -112,12 +112,13 @@ const stringifier = function (options, state, info) {
       // Record is an array
       if (Array.isArray(chunk)) {
         // We are getting an array but the user has specified output columns. In
-        // this case, we respect the columns indexes
-        if (columns) {
-          chunk.splice(columns.length);
-        }
+        // this case, we respect the columns indexes. `chunk` must not be
+        // mutated, it may be frozen or reused by the caller.
+        const length = columns
+          ? Math.min(columns.length, chunk.length)
+          : chunk.length;
         // Cast record elements
-        for (let i = 0; i < chunk.length; i++) {
+        for (let i = 0; i < length; i++) {
           const field = chunk[i];
           const [err, value] = this.__cast(field, {
             index: i,
@@ -151,10 +152,10 @@ const stringifier = function (options, state, info) {
         if (typeof value === "string") {
           options = this.options;
         } else if (is_object(value)) {
-          // Value is considerered as a mix of a value and options
-          options = value;
-          value = options.value;
-          delete options.value;
+          // Value is considerered as a mix of a value and options. The
+          // object is returned by the user cast function and must not be
+          // mutated, it may be frozen or reused by the caller.
+          ({ value, ...options } = value);
           if (
             typeof value !== "string" &&
             value !== undefined &&

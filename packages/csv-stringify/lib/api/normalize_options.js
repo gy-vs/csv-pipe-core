@@ -200,7 +200,9 @@ const normalize_options = function (opts) {
   if (options.cast === undefined || options.cast === null) {
     options.cast = {};
   } else {
-    // todo
+    // Clone the cast definition so the caller's object is never mutated
+    // (it may be frozen or shared between stringifications)
+    options.cast = { ...options.cast };
   }
   // Normalize option cast.bigint
   if (options.cast.bigint === undefined || options.cast.bigint === null) {

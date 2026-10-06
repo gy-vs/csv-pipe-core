@@ -7,18 +7,9 @@ const camelize = function (str) {
 };
 
 const normalize_options = (opts) => {
-  // Convert Stream Readable options if underscored
-  if (opts.object_mode) {
-    opts.objectMode = opts.object_mode;
-  }
-  if (opts.high_water_mark) {
-    opts.highWaterMark = opts.high_water_mark;
-  }
-  // See https://nodejs.org/api/stream.html#stream_new_stream_readable_options
-  // Node.js 20 introduced `stream.getDefaultHighWaterMark(opts.objectMode)`
-  // opts.highWaterMark = opts.highWaterMark ?? (opts.objectMode ? 16 : 16384);
-  // opts.highWaterMark = opts.highWaterMark ?? stream.getDefaultHighWaterMark(opts.objectMode);
-  // Clone and camelize options
+  // Clone and camelize options. Underscored options like `object_mode` and
+  // `high_water_mark` are converted to their camelCase counterparts. The
+  // caller's object is never mutated, it may be frozen or reused.
   const options = {};
   for (const k in opts) {
     options[camelize(k)] = opts[k];
@@ -50,6 +41,9 @@ const normalize_options = (opts) => {
   if (typeof options.columns === "number") {
     options.columns = new Array(options.columns);
   }
+  // Clone the columns array so the caller's array is never mutated when
+  // string type names are replaced by their generator functions
+  options.columns = [...options.columns];
   const accepted_header_types = Object.keys(types).filter(
     (t) => !["super_", "camelize"].includes(t),
   );

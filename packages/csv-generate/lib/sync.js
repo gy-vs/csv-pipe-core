@@ -29,9 +29,9 @@ const generate = function (options) {
     chunks.push(chunk);
   };
   while (work) {
-    generator.__read(options.highWaterMark);
+    generator.__read(generator.options.highWaterMark);
   }
-  if (!options.objectMode) {
+  if (!generator.options.objectMode) {
     return chunks.join("");
   } else {
     return chunks;
